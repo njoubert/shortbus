@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<style>
+</style>
+<body>
+<div id="data"></div>
+</body>
+<script>
+class MessageBus {
+  constructor() {
+    this.lastCount = -1;
+    this.lastTime = null;
+    this.callbacks = [];
+    this.poll();
+    this.poller = setInterval(this.poll.bind(this), 500);
+  }
+  
+  poll() {
+    var that = this;
+    fetch('bus.php')
+      .then(response => response.json())
+      .then(data => {
+        that.lastTime = Date.now();
+        if (that.lastCount == -1) {
+          that.lastCount = data.count;
+        } else if (that.lastCount < data.count) {
+            that.lastCount = data.count;
+            that.callbacks.forEach(function(callback) {
+              try {
+                callback(data.message);
+              } catch (err) { 
+                console.log(err);
+              }
+            });
+          }
+        });   
+  }
+
+  send(msg) {
+    console.log("Sending...", msg);
+    if (this.lastCount != -1) {
+      this.lastCount += 1;
+    }
+    fetch('bus.php', {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(msg),
+    });
+  }
+
+  addEventListener(callback) {
+    this.callbacks.push(callback);
+  }
+ 
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const bus = new MessageBus();
+  const dataEl = document.getElementById("data");
+  bus.addEventListener(function(message) {
+    dataEl.innerHTML = "<p>" + message + "</p>" + dataEl.innerHTML;
+  });
+});
+
+</script>
+</html>
