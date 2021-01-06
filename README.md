@@ -1,13 +1,43 @@
-# Simple Message Bus
+# Shortbus - a short broadcasting messaging bus
 
-2020.12.29
+Sick of importing socket.io? Missing the good days of dropping a PHP file on a blank webserver and it just works? Here's your one-file PHP implementation of a broadcasting message bus that speaks JSON.
 
-This is a dead simple message broadcasting bus.
-It is accessible to any system that can poll an HTTP server.
-It supports many-to-many message broadcasting.
+* Single-server
+* Single-store
+* No-auth
 
-It is NOT a high performance solution, it does NOT scale particularly well. 
-It is designed for dead simple access, dead simple server requirements.
+## Features
+
+* Message TTL of 1 minute (configurable)
+* Message max size of 10Kb (configurable)
+* Message is JSON
+* Immutable messages
+* Does not guarantee delivery
+* Guarantees ordering (based on server arrival)
+* HTTP verbs interface
+* Requires only PHP and Memcached
+* Poll for new messages
+
+## API
+
+```
+GET - returns fresh user
+GET?id=id&user=user - returns [(id: id, user: !user, data: data) ... (id: last_id, user: !user, data: data)]
+POST?user=user[data] - stores (id: ++last_id, user:user, data:data]), returns ++last_id
+```
+
+## Design
+
+Each user can send arbitrary messages to the bus. The bus queues all messages for the full TTL. Each user polls the bus for messages that has arrived after its last seen id. The bus returns all messages newer than the requested ID. The bus hands out user ids, and can filter the return stream that were sent by other users. 
+
+Users has to track two stateful items: (user, last_id). 
+
+Yes, users can easily impersonate each other by sending the other's user id. 
+
+## Implementation
+
+Each message is stored as a memcached (prefix::id)->(user,data) entry, leveraging memcached's TTL expiry feature.
+
 
 
 
