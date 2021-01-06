@@ -36,7 +36,7 @@ Yes, users can easily impersonate each other by sending the other's user id.
 
 ## Implementation
 
-Each message is stored as a memcached (prefix::id)->(user,data) entry, leveraging memcached's TTL expiry feature.
+Each message is stored as a memcached `(prefix::id)->(user,data)` entry, leveraging memcached's TTL expiry feature.
 
 
 
