@@ -25,6 +25,9 @@ GET - returns fresh user
 GET?id=id&user=user - returns [(id: id, user: !user, data: data) ... (id: last_id, user: !user, data: data)]
 POST?user=user[data] - stores (id: ++last_id, user:user, data:data]), returns ++last_id
 ```
+## TODO
+
+* Implement auth. Can use a simple [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) inspired approach.
 
 ## Design
 
