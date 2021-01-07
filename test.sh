@@ -1,23 +1,50 @@
 #!/bin/bash
 
+# Dependencies
+# sudo apt-get install jq
+
+json2user () {
+  echo $(echo "$1" | jq '.user')
+}
+json2id() {
+  echo $(echo "$1" | jq '.id')
+}
+
 # Get two user IDs 
-IDA=$(curl -s -X GET "shortbus.njoubert.com")
-IDB=$(curl -s -X GET "shortbus.njoubert.com")
-echo $IDA
+echo "Acquiring user IDs..."
+RETA=$(curl -s -X GET "shortbus.njoubert.com")
+RETB=$(curl -s -X GET "shortbus.njoubert.com")
+RETC=$(curl -s -X GET "shortbus.njoubert.com")
+echo "... result: $RETA"
+echo "... result: $RETB"
+echo "... result: $RETC"
+USERA=$(json2user "$RETA")
+IDA=$(json2id "$RETA")
+USERB=$(json2user "$RETB")
+IDB=$(json2id "$RETB")
+USERC=$(json2user "$RETC")
+IDC=$(json2id "$RETC")
+
 
 #Send two messages from each user
-KEY=$(curl -s -X POST -d "hello_from_a_1" "shortbus.njoubert.com?user=$IDA")
-echo $KEY
-curl -s -X POST -d "hello_from_a_2" "shortbus.njoubert.com?user=$IDA"
-curl -s -X POST -d "hello_from_b_1" "shortbus.njoubert.com?user=$IDB"
-curl -s -X POST -d "hello_from_b_2" "shortbus.njoubert.com?user=$IDB"
+send_two_messages() {
+  echo "Sending two messages from User $1"
+  RET1=$(curl -s -X POST -d "hello from User $1" "shortbus.njoubert.com?user=$1")
+  echo "... result: $RET1"
+  RET2=$(curl -s -X POST -d "hello from User $1 again" "shortbus.njoubert.com?user=$1")
+  echo "... result: $RET2"
+}
+send_two_messages $USERA 
+send_two_messages $USERB 
+send_two_messages $USERC 
 
 #Now request messages from each user
-RECA=$(curl -s -X GET "shortbus.njoubert.com?user=$IDA&id=$KEY")
-RECB=$(curl -s -X GET "shortbus.njoubert.com?user=$IDA&id=$KEY")
+poll_for_user() {
+  echo "Polling for User $1 from ID $2"
+  POLL=$(curl -s -X GET "shortbus.njoubert.com?user=$1&id=$2")
+  echo "... result: $POLL"
+}
+poll_for_user $USERA $IDA
+poll_for_user $USERB $IDB
+poll_for_user $USERC $IDC
 
-echo "User A received:"
-echo $RECA
-
-echo "User B received:"
-echo $RECB
