@@ -9,6 +9,9 @@ json2user () {
 json2id() {
   echo $(echo "$1" | jq '.id')
 }
+json2data() {
+  echo $(echo "$1" | jq '.data')
+}
 
 # Get two user IDs 
 echo "Acquiring user IDs..."
@@ -25,7 +28,6 @@ IDB=$(json2id "$RETB")
 USERC=$(json2user "$RETC")
 IDC=$(json2id "$RETC")
 
-
 #Send two messages from each user
 send_two_messages() {
   echo "Sending two messages from User $1"
@@ -39,12 +41,19 @@ send_two_messages $USERB
 send_two_messages $USERC 
 
 #Now request messages from each user
-poll_for_user() {
+assert_poll_for_user() {
   echo "Polling for User $1 from ID $2"
-  POLL=$(curl -s -X GET "shortbus.njoubert.com?user=$1&id=$2")
-  echo "... result: $POLL"
+  ret=$(curl -s -X GET "shortbus.njoubert.com?user=$1&id=$2")
+  echo "... result: $ret"
+  users=$(echo $ret | jq -r '.[].user')
+  expected="$3 $3 $4 $4"
+  if [[ "${users//[$' \t\n\r']/}" == "${expected//[$' \t\n\r']/}" ]]; then
+    echo -e "\033[1;32mPASSED\033[0m"
+  else
+    echo -e "\033[1;31mFAILED\033[0m"
+  fi
 }
-poll_for_user $USERA $IDA
-poll_for_user $USERB $IDB
-poll_for_user $USERC $IDC
+assert_poll_for_user $USERA $IDA $USERB $USERC 
+assert_poll_for_user $USERB $IDB $USERA $USERC
+assert_poll_for_user $USERC $IDC $USERA $USERB
 
