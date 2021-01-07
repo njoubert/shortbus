@@ -27,7 +27,7 @@ POST?user=user[data] - stores (id: ++last_id, user:user, data:data]), returns ++
 ```
 ## TODO
 
-* Implement auth. Can use a simple [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) inspired approach.
+* Implement auth. Likely with a simple [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) inspired HMAC approach, with the server handing a secret to the user, and the user signing messages with the secret to prove consistent identity and ownership over user id.
 
 ## Design
 
