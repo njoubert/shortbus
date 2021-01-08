@@ -1,4 +1,4 @@
-# Shortbus - a short broadcasting messaging bus
+# Shortbus - a short broadcasting message bus
 
 Sick of importing socket.io? Missing the good days of dropping a PHP file on a blank webserver and it just works? Here's your one-file PHP implementation of a broadcasting message bus that speaks JSON.
 
@@ -8,6 +8,8 @@ Sick of importing socket.io? Missing the good days of dropping a PHP file on a b
 
 ## Features
 
+* Arbitrary number of simultaneous users sharing broadcasting bus
+* File defines the bus. Copy file, change config line, and wham! new bus.
 * Message TTL of 1 minute (configurable)
 * Message max size of 10Kb (configurable)
 * Message is JSON
@@ -17,6 +19,10 @@ Sick of importing socket.io? Missing the good days of dropping a PHP file on a b
 * HTTP verbs interface
 * Requires only PHP and Memcached
 * Poll for new messages
+
+## Config
+
+See the first few lines of the php file for config.
 
 ## API
 
