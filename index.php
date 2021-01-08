@@ -25,7 +25,6 @@ if (!$m->get($Cid)) {
 	$m->set($Cid, 1);   // Danger: 32-bit int counter... or might be 64?
 	$m->set($Cud, 1);   // Danger: 32-bit int counter
 }
-logger("hello");
 if ($m->get($Cid) > 1<<30) {
   die ("We are out of ID numbers.");
 } else if ($_SERVER['REQUEST_METHOD'] === 'GET' and empty($_GET)) {
@@ -57,17 +56,22 @@ if ($m->get($Cid) > 1<<30) {
   if ($_SERVER['CONTENT_LENGTH'] > $C_MAX) {
     http_response_code(413);
     die('Too large');
-  } else if (intval($_GET['user']) > $m->get($Cid)) {
+  }
+  if (intval($_GET['user']) > $m->get($Cid)) {
     http_response_code(404);
     die('User ID invalid');
-  } else {
-    $entityBody = file_get_contents('php://input');
-    $id = $m->increment($Cid);
-    $user = $_GET['user'];
-    $m->set(message_user_key($id), $user, 0, $C_TTL_S);
-    $m->set(message_data_key($id), $entityBody, 0, $C_TTL_S);
-    echo json_encode(array('user' => $user, 'id' => $id)); 
   }
+  $data = file_get_contents('php://input');
+  $json = json_decode($data);
+  if ($json === null) {
+    http_response_code(400);
+    die('not valid json');
+  }
+  $id = $m->increment($Cid);
+  $user = $_GET['user'];
+  $m->set(message_user_key($id), $user, 0, $C_TTL_S);
+  $m->set(message_data_key($id), $json, 0, $C_TTL_S);
+  echo json_encode(array('user' => $user, 'id' => $id)); 
 } else {
   http_response_code(404);
   var_dump($_GET);

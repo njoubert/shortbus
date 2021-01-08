@@ -14,6 +14,25 @@ json2id() {
 json2data() {
   echo $(echo "$1" | jq '.data')
 }
+assert_eq() {
+  if [[ "$1" == "$2" ]]; then
+    echo -e "\033[1;32mPASSED\033[0m"
+    return 0
+  else
+    echo -e "\033[1;31mFAILED: $1 != $2\033[0m"
+    return 1
+  fi
+}
+assert_ne() {
+  if [[ "$1" != "$2" ]]; then
+    echo -e "\033[1;32mPASSED\033[0m"
+    return 0
+  else
+    echo -e "\033[1;31mFAILED: $1 == $2\033[0m"
+    return 1
+  fi
+}
+
 # Get two user IDs 
 echo "Acquiring user IDs..."
 RETA=$(curl -s -X GET "shortbus.njoubert.com")
@@ -32,9 +51,9 @@ IDC=$(json2id "$RETC")
 #Send two messages from each user
 send_two_messages() {
   echo "Sending two messages from User $1"
-  RET1=$(curl -s -X POST -d "hello from User $1" "shortbus.njoubert.com?user=$1")
+  RET1=$(curl -s -X POST -d "{\"msg\":\"hello from User $1\"}" "shortbus.njoubert.com?user=$1")
   echo "... result: $RET1"
-  RET2=$(curl -s -X POST -d "hello from User $1 again" "shortbus.njoubert.com?user=$1")
+  RET2=$(curl -s -X POST -d "\"hello from User $1 again\"" "shortbus.njoubert.com?user=$1")
   echo "... result: $RET2"
 }
 send_two_messages $USERA 
