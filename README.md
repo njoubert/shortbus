@@ -12,7 +12,7 @@ Sick of importing socket.io? Missing the good days of dropping a PHP file on a b
 * File defines the bus. Copy file, change config line, and wham! new bus.
 * Message TTL of 1 minute (configurable)
 * Message max size of 10Kb (configurable)
-* Message is JSON
+* Message must be valid JSON
 * Immutable messages
 * Does not guarantee delivery
 * Guarantees ordering (based on server arrival)
