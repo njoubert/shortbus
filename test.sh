@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Dependencies
 # sudo apt-get install jq
 
@@ -12,7 +14,6 @@ json2id() {
 json2data() {
   echo $(echo "$1" | jq '.data')
 }
-
 # Get two user IDs 
 echo "Acquiring user IDs..."
 RETA=$(curl -s -X GET "shortbus.njoubert.com")

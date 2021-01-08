@@ -16,22 +16,25 @@ function message_data_key($id) {
   return $Cmpre . $id . '-data';
 }
 function logger($msg) {
-  file_put_contents('php://stderr', print_r($msg));
+  file_put_contents('php://stderr', print_r($msg, TRUE) . "\n");
 }
-////////////////
+
 $m = new Memcache;
 $m->connect('127.0.0.1', 11211) or die ("Could not connect");
 if (!$m->get($Cid)) {
 	$m->set($Cid, 1);   // Danger: 32-bit int counter... or might be 64?
 	$m->set($Cud, 1);   // Danger: 32-bit int counter
 }
+logger("hello");
 if ($m->get($Cid) > 1<<30) {
   die ("We are out of ID numbers.");
 } else if ($_SERVER['REQUEST_METHOD'] === 'GET' and empty($_GET)) {
+  // API:  GET[] - Retrieve a new user
   $user = $m->increment($Cud);
   $id = $m->get($Cid);
   echo json_encode(array('user' => $user, 'id' => $id));
 } else if ($_SERVER['REQUEST_METHOD'] === 'GET' and isset($_GET['id']) and isset($_GET['user'])) {
+  // API:   GET[user,id] - Polling for Messages since id not sent by user
   $id = intval($_GET['id']);
   $user = $_GET['user'];
   $last_id = $m->get($Cid);
@@ -50,6 +53,7 @@ if ($m->get($Cid) > 1<<30) {
     echo json_encode($messages);
   }
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST' and isset($_GET['user'])) {
+  // API:  PUT[user,data] - Adding Message Data for User
   if ($_SERVER['CONTENT_LENGTH'] > $C_MAX) {
     http_response_code(413);
     die('Too large');
