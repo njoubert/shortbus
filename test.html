@@ -6,67 +6,42 @@
 <style>
 </style>
 <body>
-<div id="data"></div>
+<h3>Sender 1:</h3>
+<div>User ID: <span id="user1"></span></div>
+<div>Send msg: <input type="text" id="send1"><input type="button" value="Send" onclick="send1();">
+<h4>Received:</h4>
+<pre>
+<div id="data1"></div>
+</pre>
+<h3>Sender 1:</h3>
+<div>User ID: <span id="user2"></span></div>
+<div>Send msg: <input type="text" id="send2"><input type="button" value="Send" onclick="send2();">
+<pre>
+<div id="data2"></div>
+</pre>
 </body>
+<script src="shortbus.js"></script>
 <script>
-class MessageBus {
-  constructor() {
-    this.lastCount = -1;
-    this.lastTime = null;
-    this.callbacks = [];
-    this.poll();
-    this.poller = setInterval(this.poll.bind(this), 500);
-  }
-  
-  poll() {
-    var that = this;
-    fetch('bus.php')
-      .then(response => response.json())
-      .then(data => {
-        that.lastTime = Date.now();
-        if (that.lastCount == -1) {
-          that.lastCount = data.count;
-        } else if (that.lastCount < data.count) {
-            that.lastCount = data.count;
-            that.callbacks.forEach(function(callback) {
-              try {
-                callback(data.message);
-              } catch (err) { 
-                console.log(err);
-              }
-            });
-          }
-        });   
-  }
 
-  send(msg) {
-    console.log("Sending...", msg);
-    if (this.lastCount != -1) {
-      this.lastCount += 1;
-    }
-    fetch('bus.php', {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(msg),
-    });
-  }
+const bus1 = new MessageBus();
+const bus2 = new MessageBus();
 
-  addEventListener(callback) {
-    this.callbacks.push(callback);
-  }
- 
-}
+
+function send1(id) {bus1.send(document.getElementById("send1").value);}
+function send2(id) {bus2.send(document.getElementById("send2").value);}
 
 document.addEventListener("DOMContentLoaded", function() {
-  const bus = new MessageBus();
-  const dataEl = document.getElementById("data");
-  bus.addEventListener(function(message) {
-    dataEl.innerHTML = "<p>" + message + "</p>" + dataEl.innerHTML;
+  bus1.addEventListener(function(message) {
+    const dataEl = document.getElementById("data1");
+    dataEl.innerHTML = JSON.stringify(message) + "\n" + dataEl.innerHTML;
   });
-});
+  bus2.addEventListener(function(message) {
+    const dataEl = document.getElementById("data2");
+    dataEl.innerHTML = JSON.stringify(message) + "\n" + dataEl.innerHTML;
+  });
 
+  //const send1 = document.getElementById("send1");
+  //const send2 = document.getElementById("send2");
+});
 </script>
 </html>

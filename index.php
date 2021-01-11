@@ -37,20 +37,16 @@ if ($m->get($Cid) > 1<<30) {
   $id = intval($_GET['id']);
   $user = $_GET['user'];
   $last_id = $m->get($Cid);
-  if ($id >= $last_id) {
-    echo '';
-  } else {
-    $messages = array();
-    while ($id < $last_id) {
-      $id++;
-      $msg_user = $m->get(message_user_key($id));
-      $msg_data = $m->get(message_data_key($id));
-      if ($msg_data and $msg_user and $msg_user != $user) {
-        array_push($messages, array('id' => $id, 'user' => $msg_user, 'data' => $msg_data));
-      }
+  $messages = array();
+  while ($id < $last_id) {
+    $id++;
+    $msg_user = $m->get(message_user_key($id));
+    $msg_data = $m->get(message_data_key($id));
+    if ($msg_data and $msg_user and $msg_user != $user) {
+      array_push($messages, array('id' => $id, 'user' => $msg_user, 'data' => $msg_data));
     }
-    echo json_encode($messages);
   }
+  echo json_encode($messages);
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST' and isset($_GET['user'])) {
   // API:  PUT[user,data] - Adding Message Data for User
   if ($_SERVER['CONTENT_LENGTH'] > $C_MAX) {
