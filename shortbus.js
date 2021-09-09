@@ -46,8 +46,6 @@ class MessageBus {
       .then(msg => {
         that.lastTime = Date.now();
         if (msg.length > 0) {
-          console.log(msg);
-          msg.forEach(m => {
             that.lastId = m.id;
             that.callbacks.forEach(cb => { cb(m.data); });
           });

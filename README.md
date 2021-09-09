@@ -6,6 +6,10 @@ Sick of importing socket.io? Missing the good days of dropping a PHP file on a b
 * Single-store
 * No-auth
 
+## Install
+
+`sudo apt install memcached libmemcached-tools php-memcache`
+
 ## Features
 
 * Arbitrary number of simultaneous users sharing broadcasting bus
